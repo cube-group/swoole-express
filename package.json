@@ -1,0 +1,20 @@
+{
+  "name": "cube-group/swoole-express",
+  "version": "0.0.1",
+  "start": "php ./bin/www.php",
+  "author": {
+    "name": "linyang",
+    "mail": "lin2798003@sina.com"
+  },
+  "dir": {
+    "view": "view",
+    "tmp": "tmp",
+    "pub": "public"
+  },
+  "core": {
+    "server_port": 8777,
+    "session_name": "CUBE_SESSID",
+    "session_timeout": 86400,
+    "jsonp": "callback"
+  }
+}

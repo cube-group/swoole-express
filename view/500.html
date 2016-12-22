@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Service Cube Error</title>
+    <style>
+        #msg {
+            color: #FF0000;
+        }
+
+        .container {
+            margin-left: 50px;
+            margin-top: 50px;
+            margin-right: 50px;
+            margin-bottom: 50px;
+        }
+    </style>
+    <script src="./public/js/jQuery.min.1.11.2.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#msg').html('<b>Custom error:</b>' + cubeAngularJSObject.level + ' ' + cubeAngularJSObject.msg);
+            $('#content').html('Error on line ' + cubeAngularJSObject.line + ' in ' + cubeAngularJSObject.file + '<br>');
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <p>
+        <!-- doc html -->
+    <h1>Cube PHP. 500</h1>
+    View Engine: AngularEngine
+    </p>
+    <p id="msg"></p>
+    <p id="content"></p>
+    <div>
+        <p>
+            <a href="https://github.com/cube-group/" target="_blank">see the github!</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
