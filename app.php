@@ -5,17 +5,15 @@
  * Date: 16/11/9
  */
 use cube\App;
-use session\Session;
+use session\RedisSession;
 
 $app = App::Router();
 
 //session parser middleware.
-$app->on(Session::create());
+//$app->on(RedisSession::create());
 
 //add common middleware.
-$app->on(function ($req, $res, $next) {
-    $next();
-});
+$app->on(\favicon\Favicon::create());
 
 //add virtual router.
 $app->on('/user', 'router/user.php');

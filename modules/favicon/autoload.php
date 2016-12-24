@@ -11,7 +11,7 @@ class Favicon
     public static function create()
     {
         return [
-            '/favicon',
+            '/favicon.ico',
             function ($req, $res, $next) {
                 if (defined('PUB_DIR')) {
                     $res->download(PUB_DIR . 'favicon.ico');

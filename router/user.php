@@ -22,7 +22,7 @@ $router->on('/:id/:name/pwd', function ($req, $res, $next) {
 
 $router->on('/http', function ($req, $res, $next) {
     //$req->route => /user/http
-    $res->send(\http\Http::get('https://github.com/cube-group'));
+    $res->send(\http\Http::getSync('https://github.com/cube-group'));
 });
 
 $router->on('/repeat/', 'router/upload.php');

@@ -99,48 +99,87 @@ final class FS
     }
 
     /**
-     * append the content to the file.
+     * sync write file.
      *
-     * @param $source
-     * @param $data
+     * @param $filename string
+     * @param $fileContent string
+     * @param int $offset
+     * @return boolean
      */
-    public static function append($source, $data)
+    public static function writeFile($filename, $fileContent, $offset = -1)
     {
-//        if (!is_writable($source)) {
-//            return false;
-//        }
         try {
-            $file = fopen($source, 'a');
-            fwrite($file, $data);
+            $file = fopen($filename, 'w');
+            fseek($file, $offset);
+            fwrite($file, $fileContent);
             fclose($file);
-            return true;
+
+            return TRUE;
         } catch (\Exception $e) {
-            return false;
+            return FALSE;
         }
     }
 
     /**
-     * read the content from the fle.
+     * async write file.
      *
-     * @param $source
-     * @param $length content length
+     * @param $filename string
+     * @param $fileContent string
+     * @param $callback \Closure
+     * @param int $offset
      */
-    public static function read($source, $length = 0)
+    public static function writeFileAsync($filename, $fileContent, $callback, $offset = -1)
     {
-        if (!is_file($source) || !is_readable($source)) {
-            return '';
+        if ($offset > 0) {
+            \swoole_async_write($filename, $fileContent, $offset, $callback);
+        } else {
+            \swoole_async_writefile($filename, $fileContent, $callback);
+        }
+    }
+
+    /**
+     * sync read the file.
+     *
+     * @param $source string
+     * @param int $size
+     * @param int $offset
+     * @return mixed
+     */
+    public static function readFile($filename, $size = 0, $offset = 0)
+    {
+        if (!is_file($filename) || !is_readable($filename)) {
+            return NULL;
         }
         try {
-            if ($length <= 0 || $length > filesize($source)) {
-                return file_get_contents($source);
+            if ($size <= 0 || $size > filesize($filename)) {
+                return file_get_contents($filename);
             }
 
-            $file = fopen($source, 'r');
-            $content = fread($file, $length);
+            $file = fopen($filename, 'r');
+            fseek($file, $offset);
+            $content = fread($file, $size);
             fclose($file);
             return $content;
         } catch (\Exception $e) {
-            return '';
+            return FALSE;
+        }
+    }
+
+    /**
+     * async read the file
+     * @param $filename string
+     * @param $callback \Closure function($filename,$content,$size,$offset){return bool;}
+     * @param int $size
+     * @param int $offset
+     * @return null
+     */
+    public static function readFileAsync($filename, $callback, $size = 0, $offset = 0)
+    {
+        if ($size > 0) {
+            $size = $size > 8192 ? 8192 : $size;
+            \swoole_async_read($filename, $callback, $size, $offset);
+        } else {
+            \swoole_async_readfile($filename, $callback);
         }
     }
 

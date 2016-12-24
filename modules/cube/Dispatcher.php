@@ -4,7 +4,6 @@ namespace cube;
 
 /**
  * Class Dispatcher.
- *
  */
 class Dispatcher
 {
@@ -17,7 +16,7 @@ class Dispatcher
      */
     private $res;
     /**
-     * @var MiddlewareArray
+     * @var array
      */
     private $stack;
     /**
@@ -25,7 +24,6 @@ class Dispatcher
      * @var \Closure
      */
     private $connect;
-
 
 
     /**
@@ -87,7 +85,6 @@ class Dispatcher
     }
 
 
-
     /**
      * Dispatcher constructor.
      * @param Request $req
@@ -100,12 +97,12 @@ class Dispatcher
         $this->res = $res;
 
         //clone router->stack()
-        $tempStack = $router->stack();
-        $this->stack = new MiddlewareArray($tempStack);
+        $this->stack = $router->stack();
 
         //connect module.
         $this->connect = function () {
-            if ($item = $this->stack->current()) {
+            if ($item = current($this->stack)) {
+                next($this->stack);
                 $this->exec($item);
             } else {
                 $this->res->render('404');
@@ -160,67 +157,5 @@ class Dispatcher
         } else {
             $this->next();
         }
-    }
-}
-
-
-/**
- * Class MiddlewareArray.
- * Package Array.
- * @package cube
- */
-class MiddlewareArray
-{
-    private $value = [];
-    private $index = 0;
-
-    public function __get($name)
-    {
-        // TODO: Implement __get() method.
-        return $this->$name;
-    }
-
-    public function push($value)
-    {
-        array_push($this->value, $value);
-    }
-
-    public function del($i)
-    {
-        unset($this->value[$i]);
-    }
-
-    public function current($value = null)
-    {
-        if ($value) {
-            $this->value[$this->index] = $value;
-        } else {
-            return ($this->index < $this->length()) ? $this->value[$this->index] : false;
-        }
-    }
-
-    public function execNext()
-    {
-        $this->value[$this->index][1]->next();
-    }
-
-    public function next()
-    {
-        $this->index++;
-    }
-
-    public function prev()
-    {
-        $this->index--;
-    }
-
-    public function reset()
-    {
-        $this->index = 0;
-    }
-
-    public function length()
-    {
-        return count($this->value);
     }
 }

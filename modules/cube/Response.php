@@ -24,10 +24,14 @@ use utils\Utils;
  */
 final class Response
 {
+    /**
+     * @var \swoole_http_response
+     */
     protected $instance;
 
     /**
      * Response constructor.
+     * @param $instance \swoole_http_response
      */
     public function __construct($instance)
     {
@@ -60,6 +64,7 @@ final class Response
      * @param string $domain
      * @param bool $secure
      * @param bool $httponly
+     * @return $this
      */
     public function cookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
@@ -75,11 +80,58 @@ final class Response
      */
     public function download($filename)
     {
-        $this->instance->header("Content-type','application/force-download");
-        $this->instance->header("Content-Disposition','attachment; filename=" . pathinfo($filename)['basename']);
-        $this->instance->sendfile($filename);
+        if (!is_file($filename)) {
+            return FALSE;
+        }
 
-//        Log::log('Response download', $this->getTimer());
+        // Parse Info / Get Extension
+        $fsize = filesize($filename);
+        $path_parts = pathinfo($filename);//返回文件路径的信息
+        $ext = strtolower($path_parts["extension"]); //将字符串转化为小写
+        // Determine Content Type
+        switch ($ext) {
+            case "ico":
+                $ctype = "image/x-icon";
+                break;
+            case "pdf":
+                $ctype = "application/pdf";
+                break;
+            case "exe":
+                $ctype = "application/octet-stream";
+                break;
+            case "zip":
+                $ctype = "application/zip";
+                break;
+            case "doc":
+                $ctype = "application/msword";
+                break;
+            case "xls":
+                $ctype = "application/vnd.ms-excel";
+                break;
+            case "ppt":
+                $ctype = "application/vnd.ms-powerpoint";
+                break;
+            case "gif":
+                $ctype = "image/gif";
+                break;
+            case "png":
+                $ctype = "image/png";
+                break;
+            case "jpeg":
+            case "jpg":
+                $ctype = "image/jpg";
+                break;
+            default:
+                $ctype = "application/force-download";
+        }
+
+        $this->instance->header("Pragma", "public"); // required 指明响应可被任何缓存保存
+        $this->instance->header("Expires", "0");
+        $this->instance->header("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+        $this->instance->header("Content-Type", $ctype);
+        $this->instance->header("Content-Length", $fsize);
+        $this->instance->sendfile($filename);
+        return TRUE;
     }
 
     /**
@@ -108,31 +160,6 @@ final class Response
     {
         $this->instance->status(200);
         $this->instance->end(json_encode($value));
-
-//        Log::log('Response json', $this->getTimer());
-    }
-
-    /**
-     * send the jsonp string to the client.
-     *
-     * $res->jsonp(['hello world']);
-     *
-     * @param $value
-     * @return void
-     */
-    public function jsonp($value)
-    {
-//        $callback_str = Config::get('core', 'jsonp');
-//        if (empty($callback_str)) {
-//            return;
-//        }
-//        $callback_func = $_GET[$callback_str];
-//        if (empty($callback_func)) {
-//            return;
-//        }
-//        echo $callback_func . '(' . json_encode($value) . ')';
-//
-//        Log::log('Response jsonp', $this->getTimer());
     }
 
 
@@ -149,8 +176,6 @@ final class Response
 
         $this->instance->status(200);
         $this->instance->end($data);
-
-//        Log::log('Response angular', $this->getTimer());
     }
 
     /**
@@ -173,8 +198,6 @@ final class Response
 
         $this->instance->status(200);
         $this->instance->end($data);
-
-//        Log::log('Response render ' . $viewName, $this->getTimer());
     }
 
     /**
@@ -195,68 +218,6 @@ final class Response
 //        } else {
 //            throw new \Exception('redirect value is illegal');
 //        }
-    }
-
-    /**
-     * set httpHeader status.
-     * @param $code integer
-     */
-    public function statusCode($code)
-    {
-        $_status = array(
-            // Informational 1xx
-            100 => 'Continue',
-            101 => 'Switching Protocols',
-            // Success 2xx
-            200 => 'OK',
-            201 => 'Created',
-            202 => 'Accepted',
-            203 => 'Non-Authoritative Information',
-            204 => 'No Content',
-            205 => 'Reset Content',
-            206 => 'Partial Content',
-            // Redirection 3xx
-            300 => 'Multiple Choices',
-            301 => 'Moved Permanently',
-            302 => 'Moved Temporarily ',  // 1.1
-            303 => 'See Other',
-            304 => 'Not Modified',
-            305 => 'Use Proxy',
-            // 306 is deprecated but reserved
-            307 => 'Temporary Redirect',
-            // Client Error 4xx
-            400 => 'Bad Request',
-            401 => 'Unauthorized',
-            402 => 'Payment Required',
-            403 => 'Forbidden',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            406 => 'Not Acceptable',
-            407 => 'Proxy Authentication Required',
-            408 => 'Request Timeout',
-            409 => 'Conflict',
-            410 => 'Gone',
-            411 => 'Length Required',
-            412 => 'Precondition Failed',
-            413 => 'Request Entity Too Large',
-            414 => 'Request-URI Too Long',
-            415 => 'Unsupported Media Type',
-            416 => 'Requested Range Not Satisfiable',
-            417 => 'Expectation Failed',
-            // Server Error 5xx
-            500 => 'Internal Server Error',
-            501 => 'Not Implemented',
-            502 => 'Bad Gateway',
-            503 => 'Service Unavailable',
-            504 => 'Gateway Timeout',
-            505 => 'HTTP Version Not Supported',
-            509 => 'Bandwidth Limit Exceeded'
-        );
-        if (array_key_exists($code, $_status)) {
-            header('HTTP/1.1 ' . $code . ' ' . $_status[$code]);
-        }
-
-        return $this;
     }
 
 

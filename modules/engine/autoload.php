@@ -40,7 +40,7 @@ class ViewEngine
      */
     final protected function getViewContent($name)
     {
-        return FS::read($this->getViewPagePath($name));
+        return FS::readFile($this->getViewPagePath($name));
     }
 
     /**

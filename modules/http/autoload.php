@@ -23,13 +23,14 @@ final class Http
     }
 
     /**
-     * http/https get request.
+     * sync get the http/https request.
+     *
      * @param $url
      * @param timeout
      * @param $CA
      * @return mixed
      */
-    public static function get($url, $timeout = 15, $CA = '')
+    public static function getSync($url, $timeout = 15, $CA = '')
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -54,14 +55,14 @@ final class Http
     }
 
     /**
-     * http/https post request.
+     * sync post http/https request.
      * @param $url
      * @param $data
      * @param timeout
      * @param $CA
      * @return mixed
      */
-    public static function post($url, $data, $timeout = 15, $CA = '')
+    public static function postSync($url, $data, $timeout = 15, $CA = '')
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -89,14 +90,15 @@ final class Http
     }
 
     /**
-     * post request by the special headers.
+     * sync post request by the special headers.
+     *
      * @param $url string
      * @param $data object
      * @param null $headers array
      * @param $timeout integer
      * @return string
      */
-    public static function postData($url, $data, $header, $timeout = 15)
+    public static function postDataSync($url, $data, $header, $timeout = 15)
     {
         $opts = [
             'http' => [
@@ -110,6 +112,57 @@ final class Http
         $context = stream_context_create($opts);
         $result = file_get_contents($url, false, $context);
         return $result;
+    }
+
+    /**
+     * async get the content.
+     * @param $url string
+     * @param $headers array
+     * @param $callback \Closure
+     */
+    public static function getAsync($url, $headers, $callback)
+    {
+        $info = parse_url($url);
+        $host = $info['host'];
+        $port = $info['scheme'] == 'https' ? 443 : 80;
+        $base_path = $info['path'] . '?' . $info['query'] . ($info['fragment'] ? '#' . $info['fragment'] : '');
+
+        $cli = new \swoole_http_client($host, $port, $port == 443);
+        $cli->setMethod('GET');
+        $cli->setHeaders($headers);
+        $cli->get($base_path, function (\swoole_http_client $cli) use ($callback) {
+            if ($cli && $cli->body) {
+                $callback(null, $cli->body);
+            } else {
+                $callback('err', NULL);
+            }
+        });
+    }
+
+    /**
+     * @param $url string
+     * @param $obj array
+     * @param $headers array
+     * @param $callback \Closure
+     * @return null
+     */
+    public static function postAsync($url, $obj, $headers, $callback)
+    {
+        $info = parse_url($url);
+        $host = $info['host'];
+        $port = $info['scheme'] == 'https' ? 443 : 80;
+        $base_path = $info['path'] . '?' . $info['query'] . ($info['fragment'] ? '#' . $info['fragment'] : '');
+
+        $cli = new \swoole_http_client($host, $port, $port == 443);
+        $cli->setMethod('POST');
+        $cli->setHeaders($headers);
+        $cli->get($base_path, $obj, function (\swoole_http_client $cli) use ($callback) {
+            if ($cli && $cli->body) {
+                $callback(null, $cli->body);
+            } else {
+                $callback('err', NULL);
+            }
+        });
     }
 }
 

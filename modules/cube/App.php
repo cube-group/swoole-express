@@ -99,18 +99,28 @@ final class App
             throw new \Exception('SWOOLE MISS!');
         }
 
+        //init the router.
         self::$router = new Router();
 
+        //load logic code.
         import('app.php');
 
-        var_dump(self::$router->stack());
+        if ($options['debug']) {
+            var_dump(self::$router->stack());
+        }
 
+        //start the web server.
         $server = new \swoole_http_server('127.0.0.1', Config::get('core', 'server_port'));
         $server->on('request', function ($req, $res) {
             new Dispatcher(new Request($req), new Response($res), self::$router);
         });
         $server->set(array(
+            'reactor_num' => 2,
             'worker_num' => 4,
+            'log_level' => 0,
+            'log_file' => BASE_DIR . 'log.log',
+            'ssl_cert_file' => $options['ssl_cert_file'],
+            'ssl_key_file' => $options['ssl_key_file'],
             'upload_tmp_dir' => BASE_DIR . Config::get('dir', 'tmp')
         ));
         $server->start();
@@ -137,58 +147,6 @@ final class App
     private function __construct()
     {
         //private
-    }
-}
-
-/**
- * Class Stack.
- * @package cube
- */
-final class Stack
-{
-    private static $str = '<b>( / , Router )</b><br>';
-    private static $rightStr = '';
-
-    /**
-     * analyze the stack of the facade router.
-     * @param $stack array
-     */
-    private static function show($stack)
-    {
-        if ($stack) {
-            self::$rightStr .= '   ';
-            foreach ($stack as $item) {
-                if (is_array($item)) {
-                    if (is_string($item[1])) {
-                        self::$str .= self::$rightStr . '( ' . $item[0] . ' , ' . $item[1] . " )\r\n";
-                    } else if (get_class($item[1]) == 'Closure') {
-                        self::$str .= self::$rightStr . '( ' . $item[0] . ' , function($req,$res,$next' . ") )\r\n";
-                    } else {
-                        self::$str .= self::$rightStr . '( ' . $item[0] . ' , Router , ' . $item[2] . " )\r\n";
-                        self::show($item[1]->stack());
-                    }
-                } else {
-                    self::$str .= self::$rightStr . '( function($req,$res,$next' . ") )\r\n";
-                }
-            }
-            self::$rightStr = substr(self::$rightStr, 0, -3);
-        }
-    }
-
-    /**
-     * get the stack result.
-     * @return string
-     */
-    public static function value($value)
-    {
-        self::$str = "\r\n";
-        self::$str .= "------------------------ stack ------------------------\r\n";
-        self::$str .= "( / , Router )\r\n";
-        self::$rightStr = '';
-        self::show($value);
-        self::$str .= "------------------------ end ------------------------\r\n";
-
-        return self::$str;
     }
 }
 
@@ -250,7 +208,7 @@ final class Config
             self::$VALUE = $json;
             define('VIEW_DIR', $options['base_dir'] . $json['dir']['view'] . '/');
             define('TMP_DIR', $options['base_dir'] . $json['dir']['tmp'] . '/');
-            define('PUB_DIR', $options['base_dir'] . $json['dir']['tmp'] . '/');
+            define('PUB_DIR', $options['base_dir'] . $json['dir']['pub'] . '/');
             $GLOBALS['CONFIG'] = $json;
         } else {
             throw new \Exception('config is error or null');

@@ -20,6 +20,9 @@ use utils\Utils;
  */
 final class Request
 {
+    /**
+     * @var \swoole_http_request
+     */
     protected $instance;
     /**
      * user ip
@@ -112,8 +115,7 @@ final class Request
         $this->initCoreInfo();
         $this->assist = new DynamicClass();
 
-        //request log.log.
-        Log::log($this->baseUrl);
+        echo $this->path . "\n";
     }
 
     /**
@@ -135,8 +137,6 @@ final class Request
         $this->post = new DynamicClass($this->instance->post);
         $this->body = $this->instance->rawContent();
         $this->files = $this->instance->files;
-
-        var_dump($this->path);
     }
 
     /**

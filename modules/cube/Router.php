@@ -25,6 +25,7 @@ final class Router
      */
     private $stack;
     /**
+     * middleware layer filter.
      * @var string;
      */
     private $temp;
@@ -73,7 +74,7 @@ final class Router
             }
         } else {
             if (is_array($args[0]) && count($args[0]) == 2) {
-                $this->stack[] = [$this->getAbsoluteFilter($args[0]), $args[1]];
+                $this->stack[] = [$this->getAbsoluteFilter($args[0][0]), $args[0][1]];
             } else if (get_class($args[0]) == 'Closure') {
                 $this->stack[] = $args[0];
             }

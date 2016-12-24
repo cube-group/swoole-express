@@ -22,7 +22,8 @@ class Utils
      */
     public static function isHTTPS($url)
     {
-        return strstr('https://', pathinfo($url)['dirname']);
+        $value = parse_url($url);
+        return $value['scheme'] == 'https';
     }
 
     /**
@@ -132,9 +133,9 @@ class DynamicClass
 
     public function __construct($value = null)
     {
-        if($value && is_array($value)){
+        if ($value && is_array($value)) {
             $this->body = $value;
-        }else{
+        } else {
             $this->body = array();
         }
     }

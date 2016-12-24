@@ -9,15 +9,17 @@
  */
 
 //include all cube libs.
-require __DIR__.'/../modules/cube/App.php';
+require __DIR__ . '/../modules/cube/App.php';
 
 //initialize the cube framework.
 \cube\App::init([
-    'base_dir' => __DIR__.'/../',
-    'error_report' => 1,
-    'time_zone' => 'Asia/Shanghai',
     'debug' => 1,
-    'modules'=>[
+    'error_report' => 1,
+    'base_dir' => __DIR__ . '/../',
+    'time_zone' => 'Asia/Shanghai',
+    'ssl_cert_file' => '',
+    'ssl_key_file' => '',
+    'modules' => [
         'modules/session/autoload.php',
         'modules/favicon/autoload.php',
     ]
