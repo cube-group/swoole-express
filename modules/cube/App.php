@@ -16,8 +16,9 @@ use utils\Utils;
  * import will check the constant('BASE_DIR')
  *
  * @param $files file path string or array
+ * @param $repeatLoad boolean
  */
-function import($files)
+function import($files, $repeatLoad = false)
 {
     $arr = null;
     if (empty($files)) {
@@ -38,7 +39,9 @@ function import($files)
         }
 
         $key = 'import-require-once-' . $file;
-        if (!isset($GLOBALS[$key])) {
+        if ($repeatLoad) {
+            require $file;
+        } else if (!isset($GLOBALS[$key])) {
             $GLOBALS[$key] = 1;
             require $file;
         }

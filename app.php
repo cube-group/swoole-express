@@ -17,7 +17,7 @@ $app->on(\favicon\Favicon::create());
 
 //add virtual router.
 $app->on('/user', 'router/user.php');
-$app->on('/upload', 'router/upload.php');
+$app->on(['up', '/upload'], 'router/upload.php');
 
 
 //add router middleware.

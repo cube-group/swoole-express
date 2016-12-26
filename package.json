@@ -1,6 +1,6 @@
 {
   "name": "cube-group/swoole-express",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "start": "php ./bin/www.php",
   "author": {
     "name": "linyang",

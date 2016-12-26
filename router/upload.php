@@ -12,9 +12,9 @@ use fs\FS;
 $router = App::Router();
 
 $router->on('/', function ($req, $res, $next) {
-    if ($req->body->fileNumber() > 0) {
+    if ($req->files && count($req->files) > 0) {
         $res->json(FS::saveUploadAsFile());
-    } else if ($content = $req->body->content()) {
+    } else if ($content = $req->body) {
         $res->json(FS::saveInputAsFile($content, $req->query->key));
     } else {
         $res->send('error');

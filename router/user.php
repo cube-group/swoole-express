@@ -25,8 +25,6 @@ $router->on('/http', function ($req, $res, $next) {
     $res->send(\http\Http::getSync('https://github.com/cube-group'));
 });
 
-$router->on('/repeat/', 'router/upload.php');
-
 $router->on('/db', function ($req, $res, $next) {
     \orm\DB::init([
         'host' => 'localhost',
