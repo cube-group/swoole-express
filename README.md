@@ -3,7 +3,7 @@ express on the php-swoole.
 High performance web framework based on swoole.
 
 ### Attension to use the cube.
-it works on the php-swoole extension,
+it works on the php-swoole extension,Please make sure to install the swoole extension!
 <p>
 The advantage of the framework is to use the asynchronous process, swoole thread and process technology,
 so be sure to use asynchronous, in the use of I/O and network requests such as fs/FS:: readFileAsync, fs/FS:: writeFileAsync, http/Http:: getAsync, http/Http:: postAsync etc..
@@ -41,7 +41,7 @@ $router->on('/filter',[
     }
 ]);
 
-$router->on(['/filter1','/filter2',[
+$router->on(['/filter1','/filter2'],[
     function($req,$res,$next){
         //exec the middleware on /filter.
     },
